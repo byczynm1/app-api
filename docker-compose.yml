@@ -1,0 +1,43 @@
+# mariusz@byczynski.pl
+#
+# you need version 3.4, for param 
+# build:
+#   network_mode: "host"
+#
+# docker repository name will be created based workdir on host and services: name 
+#                                            app-api_app
+#                                            app-api (workdir on host) services:app (put on docker-compose.yml) file
+#[vagrant@centos8 app-api]$ sudo docker images
+#REPOSITORY          TAG                 IMAGE ID            CREATED             SIZE
+#app-api_app         latest              7b0248828704        19 hours ago        115MB
+#
+version: "3.4"
+services:
+    app:
+        network_mode: "host"
+        build:
+            # propably only this parameter works 
+            #https://forums.docker.com/t/option-network-mode-host-in-docker-compose-file-not-working-as-expected/51682
+            network: host
+            context: .
+        ports:
+            - "8000:8000"
+# what you can find in your host directory ./app mapp to docker directory apt_rpm
+# host dir: docker dir
+        volumes:
+            # warning doble check this sensu_subscription
+            # it is mean 
+            # host dir: docker container dir
+            - ./app:/app
+# run django server on port 8000
+        command: >
+            sh -c "nslookup google.com"
+            sh -c "python manage.py runserver 0.0.0.0:8000"            
+
+networks:
+    default:
+        external:
+            name: "host"
+      # I need to force docker container to use "--net = host" parameter to correctly resolve DNS names
+      # https://docs.docker.com/compose/
+    
